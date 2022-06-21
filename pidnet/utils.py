@@ -12,12 +12,12 @@ class BasicBlock(tf.keras.layers.Layer):
     def __init__(self, planes, stride=1, downsample=None, no_relu=False):
         super(BasicBlock, self).__init__()
 
-        self.conv1 = tf.keras.layers.Conv2D(filters=planes, kernel_size=3, stride=stride, padding="same", use_bias=False, 
+        self.conv1 = tf.keras.layers.Conv2D(filters=planes, kernel_size=3, strides=stride, padding="same", use_bias=False, 
                                             kernel_initializer='he_uniform')
         self.bn1 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
         self.relu = tf.keras.layers.ReLU()
 
-        self.conv2 = tf.keras.layers.Conv2D(filters=planes, kernel_size=3, stride=stride, padding="same", use_bias=False,
+        self.conv2 = tf.keras.layers.Conv2D(filters=planes, kernel_size=3, strides=stride, padding="same", use_bias=False,
                                             kernel_initializer='he_uniform')
         self.bn2 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
 
@@ -55,15 +55,15 @@ class Bottleneck(tf.keras.layers.Layer):
     def __init__(self, planes, stride=1, downsample=None, no_relu=True):
         super(Bottleneck, self).__init__()
 
-        self.conv1 = tf.keras.layers.Conv2D(filters=planes, kernel_size=1, stride=1, padding="valid", use_bias=False, 
+        self.conv1 = tf.keras.layers.Conv2D(filters=planes, kernel_size=1, strides=1, padding="valid", use_bias=False, 
                                             kernel_initializer='he_uniform')
         self.bn1 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
         
-        self.conv2 = tf.keras.layers.Conv2D(filters=planes, kernel_size=3, stride=stride, padding="same", use_bias=False,
+        self.conv2 = tf.keras.layers.Conv2D(filters=planes, kernel_size=3, strides=stride, padding="same", use_bias=False,
                                             kernel_initializer='he_uniform')
         self.bn2 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
 
-        self.conv3 = tf.keras.layers.Conv2D(filters=planes * self.expansion, kernel_size=1, stride=1, padding="valid", use_bias=False,
+        self.conv3 = tf.keras.layers.Conv2D(filters=planes * self.expansion, kernel_size=1, strides=1, padding="valid", use_bias=False,
                                             kernel_initializer='glorot_uniform')
         self.bn2 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
 
@@ -105,12 +105,12 @@ class SegmentHead(tf.keras.layers.Layer):
         
         self.bn1 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
 
-        self.conv1 = tf.keras.layers.Conv2D(filters=interplanes, kernel_size=3, stride=1, padding="same", use_bias=False, 
+        self.conv1 = tf.keras.layers.Conv2D(filters=interplanes, kernel_size=3, strides=1, padding="same", use_bias=False, 
                                             kernel_initializer='he_uniform')
         
         self.bn2 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)       
 
-        self.conv2 = tf.keras.layers.Conv2D(filters=outplanes, kernel_size=1, stride=1, padding="valid", use_bias=True,
+        self.conv2 = tf.keras.layers.Conv2D(filters=outplanes, kernel_size=1, strides=1, padding="valid", use_bias=True,
                                             kernel_initializer='he_uniform')
 
         self.relu = tf.keras.layers.ReLU()
@@ -217,7 +217,7 @@ class PAPPM(tf.keras.layers.Layer):
         self.scale_process = tf.keras.Sequential([
             tf.keras.layers.BatchNormalization(momentum=bn_momentum),
             tf.keras.layers.ReLU(),
-            tf.keras.layers.Conv2D(filters=branch_planes * 4, kernel_size=kernel_size, padding='same', groups=4,
+            tf.keras.layers.Conv2D(filters=branch_planes * 4, kernel_size=3, padding='same', groups=4,
                                    use_bias=False, kernel_initializer='he_uniform')
         ])
 

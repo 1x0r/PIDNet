@@ -8,16 +8,17 @@ bn_momentum = 0.1
 class PIDNet(tf.keras.models.Model):
 
     def __init__(self, m=2, n=3, num_classes=11, planes=64, ppm_planes=96, head_planes=128, augment=True):
+        super(PIDNet, self).__init__()
 
         self.augment = augment
 
         # I-branch
 
         self.conv1 = tf.keras.Sequential([
-            tf.keras.layers.Conv2D(filters=planes, kernel_size=3, stride=2, padding='same', kernel_initializer='he_uniform'),
+            tf.keras.layers.Conv2D(filters=planes, kernel_size=3, strides=2, padding='same', kernel_initializer='he_uniform'),
             tf.keras.layers.BatchNormalization(momentum=bn_momentum),
             tf.keras.layers.ReLU(),
-            tf.keras.layers.Conv2D(filters=planes, kernel_size=3, stride=2, padding='same', kernel_initializer='he_uniform'),
+            tf.keras.layers.Conv2D(filters=planes, kernel_size=3, strides=2, padding='same', kernel_initializer='he_uniform'),
             tf.keras.layers.BatchNormalization(momentum=bn_momentum),
             tf.keras.layers.ReLU()
         ])
@@ -42,8 +43,8 @@ class PIDNet(tf.keras.models.Model):
             tf.keras.layers.BatchNormalization(momentum=bn_momentum),
         ])
 
-        self.pag3 = PagFM(palnes * 2, planes)
-        self.pag4 = PagFM(palnes * 2, planes)
+        self.pag3 = PagFM(planes * 2, planes)
+        self.pag4 = PagFM(planes * 2, planes)
 
         self.layer3_p = self._make_layer(BasicBlock, planes * 2, planes * 2, num_blocks=m, stride=1)
         self.layer4_p = self._make_layer(BasicBlock, planes * 2, planes * 2, num_blocks=m, stride=1)
@@ -146,11 +147,11 @@ class PIDNet(tf.keras.models.Model):
 
         if stride != 1 or inplanes != planes * block.expansion:
             downsample = tf.keras.Sequential([
-                tf.keras.layers.Conv2D(filters=planes * block.expansion, kernel_size=1, stride=stride, use_bias=False, kernel_initializer='he_uniform'),
+                tf.keras.layers.Conv2D(filters=planes * block.expansion, kernel_size=1, strides=stride, use_bias=False, kernel_initializer='he_uniform'),
                 tf.keras.layers.BatchNormalization(momentum=bn_momentum)
             ])
 
-        layer = block(planes, stride=1, downsample=downsample, no_relu=no_relu)
+        layer = block(planes, stride=1, downsample=downsample, no_relu=True)
 
         return layer
 
@@ -160,7 +161,7 @@ class PIDNet(tf.keras.models.Model):
 
         if stride != 1 or inplanes != planes * block.expansion:
             downsample = tf.keras.Sequential([
-                tf.keras.layers.Conv2D(filters=planes * block.expansion, kernel_size=1, stride=stride, use_bias=False, kernel_initializer='he_uniform'),
+                tf.keras.layers.Conv2D(filters=planes * block.expansion, kernel_size=1, strides=stride, use_bias=False, kernel_initializer='he_uniform'),
                 tf.keras.layers.BatchNormalization(momentum=bn_momentum)
             ])
 
@@ -170,6 +171,6 @@ class PIDNet(tf.keras.models.Model):
         for i in range(1, num_blocks):
             if i == num_blocks - 1:
                 no_relu = True
-            layers.append(block(palnes, stride=1, no_relu=no_relu))
+            layers.append(block(planes, stride=1, no_relu=no_relu))
 
         return tf.keras.Sequential(layers)
