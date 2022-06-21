@@ -17,7 +17,7 @@ class BasicBlock(tf.keras.layers.Layer):
         self.bn1 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
         self.relu = tf.keras.layers.ReLU()
 
-        self.conv2 = tf.keras.layers.Conv2D(filters=planes, kernel_size=3, strides=stride, padding="same", use_bias=False,
+        self.conv2 = tf.keras.layers.Conv2D(filters=planes, kernel_size=3, strides=1, padding="same", use_bias=False,
                                             kernel_initializer='he_uniform')
         self.bn2 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
 
@@ -47,7 +47,6 @@ class BasicBlock(tf.keras.layers.Layer):
             return self.relu(out)
 
 
-
 class Bottleneck(tf.keras.layers.Layer):
     
     expansion = 2
@@ -55,7 +54,7 @@ class Bottleneck(tf.keras.layers.Layer):
     def __init__(self, planes, stride=1, downsample=None, no_relu=True):
         super(Bottleneck, self).__init__()
 
-        self.conv1 = tf.keras.layers.Conv2D(filters=planes, kernel_size=1, strides=1, padding="valid", use_bias=False, 
+        self.conv1 = tf.keras.layers.Conv2D(filters=planes, kernel_size=1, strides=1, padding="same", use_bias=False, 
                                             kernel_initializer='he_uniform')
         self.bn1 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
         
@@ -63,9 +62,9 @@ class Bottleneck(tf.keras.layers.Layer):
                                             kernel_initializer='he_uniform')
         self.bn2 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
 
-        self.conv3 = tf.keras.layers.Conv2D(filters=planes * self.expansion, kernel_size=1, strides=1, padding="valid", use_bias=False,
+        self.conv3 = tf.keras.layers.Conv2D(filters=planes * self.expansion, kernel_size=1, strides=1, padding="same", use_bias=False,
                                             kernel_initializer='glorot_uniform')
-        self.bn2 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
+        self.bn3 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
 
         self.relu = tf.keras.layers.ReLU()
 
@@ -190,7 +189,7 @@ class DAPPM(tf.keras.layers.Layer):
         width = inputs.shape[2]
 
         xs = [
-            self.processes[i](tf.image.resize(self.scales[i], (height, width)))
+            self.processes[i](tf.image.resize(self.scales[i](inputs), (height, width)))
             for i in range(5)
         ]
 
@@ -221,7 +220,7 @@ class PAPPM(tf.keras.layers.Layer):
                                    use_bias=False, kernel_initializer='he_uniform')
         ])
 
-        self.compression = ScaleProcessBlock(branch_planes * 5, kernel_size=1, use_pooling=False)
+        self.compression = ScaleProcessBlock(outplanes, kernel_size=1, use_pooling=False)
         self.shortcut = ScaleProcessBlock(outplanes, kernel_size=1, use_pooling=False)
 
     def call(self, inputs):
@@ -229,12 +228,12 @@ class PAPPM(tf.keras.layers.Layer):
         width = inputs.shape[2]
 
         xs = [
-            tf.image.resize(self.scales[i], (height, width))
+            tf.image.resize(self.scales[i](inputs), (height, width))
             for i in range(5)
         ]
 
-        xs_cs = tf.math.cumsum(xs)
-        scale_out = self.scale_process(tf.concat(xs_cs, axis=-1))
+        xs[1:] = [xs[i] + xs[0] for i in range(1, 5)]
+        scale_out = self.scale_process(tf.concat(xs, axis=-1))
         
         out = self.compression(tf.concat([xs[0], scale_out], axis=-1)) + self.shortcut(inputs)
 
@@ -270,8 +269,8 @@ class PagFM(tf.keras.layers.Layer):
 
     
     def call(self, inputs):
-        height = inputs.shape[1]
-        width = inputs.shape[2]
+        height = inputs[0].shape[1]
+        width = inputs[0].shape[2]
 
         if self.after_relu:
             x = self.relu(inputs[0])
@@ -315,9 +314,9 @@ class LightBag(tf.keras.layers.Layer):
 
         p, i, d = inputs
 
-        egde_att = tf.sigmoid(d)
+        edge_att = tf.sigmoid(d)
 
-        p_add = self.conv_p((1 - egde_att) * i + p)
+        p_add = self.conv_p((1 - edge_att) * i + p)
         i_add = self.conv_i(i + edge_att * p)
 
         return p_add + i_add
@@ -346,9 +345,9 @@ class DDFMv2(tf.keras.layers.Layer):
 
         p, i, d = inputs
 
-        egde_att = tf.sigmoid(d)
+        edge_att = tf.sigmoid(d)
 
-        p_add = self.conv_p((1 - egde_att) * i + p)
+        p_add = self.conv_p((1 - edge_att) * i + p)
         i_add = self.conv_i(i + edge_att * p)
 
         return p_add + i_add

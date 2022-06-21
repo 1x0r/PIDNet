@@ -151,7 +151,7 @@ class PIDNet(tf.keras.models.Model):
                 tf.keras.layers.BatchNormalization(momentum=bn_momentum)
             ])
 
-        layer = block(planes, stride=1, downsample=downsample, no_relu=True)
+        layer = block(planes, stride=stride, downsample=downsample, no_relu=True)
 
         return layer
 
@@ -167,7 +167,7 @@ class PIDNet(tf.keras.models.Model):
 
         no_relu = False
         layers = []
-        layers.append(block(planes, stride=1, downsample=downsample, no_relu=no_relu))
+        layers.append(block(planes, stride=stride, downsample=downsample, no_relu=no_relu))
         for i in range(1, num_blocks):
             if i == num_blocks - 1:
                 no_relu = True
