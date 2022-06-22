@@ -22,9 +22,9 @@ class PIDNet(tf.keras.models.Model):
             tf.keras.layers.Conv2D(filters=planes, kernel_size=3, strides=2, padding='same', kernel_initializer='he_uniform'),
             tf.keras.layers.BatchNormalization(momentum=bn_momentum),
             tf.keras.layers.ReLU()
-        ])
+        ], name='pid_net_conv1')
 
-        self.relu = tf.keras.layers.ReLU()
+        self.relu = tf.keras.layers.ReLU(name='pidnet_relu')
 
         self.layer1_i = self._make_layer(BasicBlock, planes, planes, num_blocks=m, stride=1)
         self.layer2_i = self._make_layer(BasicBlock, planes, planes * 2, num_blocks=m, stride=2)
@@ -37,12 +37,12 @@ class PIDNet(tf.keras.models.Model):
         self.compression3 = tf.keras.Sequential([
             tf.keras.layers.Conv2D(filters=planes * 2, kernel_size=1, use_bias=False),
             tf.keras.layers.BatchNormalization(momentum=bn_momentum),
-        ])
+        ], name='pidnet_compression3')
 
         self.compression4 = tf.keras.Sequential([
             tf.keras.layers.Conv2D(filters=planes * 2, kernel_size=1, use_bias=False),
             tf.keras.layers.BatchNormalization(momentum=bn_momentum),
-        ])
+        ], name='pidnet_compression4')
 
         self.pag3 = PagFM(planes * 2, planes)
         self.pag4 = PagFM(planes * 2, planes)
@@ -60,12 +60,12 @@ class PIDNet(tf.keras.models.Model):
             self.diff3 = tf.keras.Sequential([
                 tf.keras.layers.Conv2D(filters=planes, kernel_size=3, padding='same', use_bias=False, kernel_initializer='he_uniform'),
                 tf.keras.layers.BatchNormalization(momentum=bn_momentum)
-            ])
+            ], name='pidnet_diff3')
 
             self.diff4 = tf.keras.Sequential([
                 tf.keras.layers.Conv2D(filters=planes * 2, kernel_size=3, padding='same', use_bias=False, kernel_initializer='he_uniform'),
                 tf.keras.layers.BatchNormalization(momentum=bn_momentum)
-            ])
+            ], name='pidnet_diff4')
 
             self.spp = PAPPM(ppm_planes, planes * 4)
             self.dfm = LightBag(planes * 4)
@@ -77,12 +77,12 @@ class PIDNet(tf.keras.models.Model):
             self.diff3 = tf.keras.Sequential([
                 tf.keras.layers.Conv2D(filters=planes * 2, kernel_size=3, padding='same', use_bias=False, kernel_initializer='he_uniform'),
                 tf.keras.layers.BatchNormalization(momentum=bn_momentum)
-            ])
+            ], name='pidnet_diff3')
 
             self.diff4 = tf.keras.Sequential([
                 tf.keras.layers.Conv2D(filters=planes * 2, kernel_size=3, padding='same', use_bias=False, kernel_initializer='he_uniform'),
                 tf.keras.layers.BatchNormalization(momentum=bn_momentum)
-            ])
+            ], name='pidnet_diff4')
 
             self.spp = DAPPM(ppm_planes, planes * 4)
             self.dfm = Bag(planes * 4)
