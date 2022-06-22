@@ -8,7 +8,7 @@ bn_momentum = 0.1
 
 class PIDNet(tf.keras.models.Model):
 
-    def __init__(self, m=2, n=3, num_classes=11, planes=64, ppm_planes=96, head_planes=128, augment=True):
+    def __init__(self, input_shape, m=2, n=3, num_classes=11, planes=64, ppm_planes=96, head_planes=128, augment=True):
         super(PIDNet, self).__init__()
 
         self.augment = augment
@@ -16,7 +16,7 @@ class PIDNet(tf.keras.models.Model):
         # I-branch
 
         self.conv1 = tf.keras.Sequential([
-            tf.keras.layers.Conv2D(filters=planes, kernel_size=3, strides=2, padding='same', kernel_initializer='he_uniform'),
+            tf.keras.layers.Conv2D(filters=planes, kernel_size=3, strides=2, padding='same', kernel_initializer='he_uniform', input_shape=input_shape),
             tf.keras.layers.BatchNormalization(momentum=bn_momentum),
             tf.keras.layers.ReLU(),
             tf.keras.layers.Conv2D(filters=planes, kernel_size=3, strides=2, padding='same', kernel_initializer='he_uniform'),
