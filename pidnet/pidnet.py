@@ -100,8 +100,8 @@ class PIDNet(tf.keras.models.Model):
 
     def call(self, inputs, training=False):
 
-        width_output = inputs.shape[2] // 8
-        height_output = inputs.shape[1] // 8
+        width_output = tf.shape(inputs)[2] // 8
+        height_output = tf.shape(inputs)[1] // 8
 
         # I-stream
 

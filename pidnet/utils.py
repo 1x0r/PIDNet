@@ -122,8 +122,8 @@ class SegmentHead(tf.keras.layers.Layer):
         out = self.conv2(self.relu(self.bn2(x)))
 
         if self.scale_factor is not None:
-            height = x.shape[1] * self.scale_factor
-            width = x.shape[2] * self.scale_factor
+            height = tf.shape(x)[1] * self.scale_factor
+            width = tf.shape(x)[2] * self.scale_factor
 
             out = tf.image.resize(out, size=(height, width))
             
@@ -187,8 +187,8 @@ class DAPPM(tf.keras.layers.Layer):
         self.shortcut = ScaleProcessBlock(outplanes, kernel_size=1, use_pooling=False)
 
     def call(self, inputs):
-        height = inputs.shape[1]
-        width = inputs.shape[2]
+        height = tf.shape(inputs)[1]
+        width = tf.shape(inputs)[2]
 
         xs = [
             self.processes[i](tf.image.resize(self.scales[i](inputs), (height, width)))
@@ -226,8 +226,8 @@ class PAPPM(tf.keras.layers.Layer):
         self.shortcut = ScaleProcessBlock(outplanes, kernel_size=1, use_pooling=False)
 
     def call(self, inputs):
-        height = inputs.shape[1]
-        width = inputs.shape[2]
+        height = tf.shape(inputs)[1]
+        width = tf.shape(inputs)[2]
 
         xs = [
             tf.image.resize(self.scales[i](inputs), (height, width))
@@ -271,8 +271,8 @@ class PagFM(tf.keras.layers.Layer):
 
     
     def call(self, inputs):
-        height = inputs[0].shape[1]
-        width = inputs[0].shape[2]
+        height = tf.shape(inputs[0])[1]
+        width = tf.shape(inputs[0])[2]
 
         if self.after_relu:
             x = self.relu(inputs[0])

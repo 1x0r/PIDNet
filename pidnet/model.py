@@ -19,8 +19,8 @@ class FullModel(tf.keras.models.Model):
         """
         outputs = self.model(x)
 
-        h, w = y[0].shape[1], y[0].shape[2]
-        ph, pw = outputs[0].shape[1], outputs[0].shape[2]
+        h, w = tf.shape(y[0])[1], tf.shape(y[0])[2]
+        ph, pw = tf.shape(outputs[0])[1], tf.shape(outputs[0])[2]
 
         if ph != h or pw != w:
             for i in range(len(outputs)):
