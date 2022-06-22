@@ -97,7 +97,6 @@ class PIDNet(tf.keras.models.Model):
         self.final_layer = SegmentHead(head_planes, num_classes)
 
     def call(self, inputs):
-        print(inputs.shape)
         width_output = inputs.shape[2] // 8
         height_output = inputs.shape[1] // 8
 
@@ -106,7 +105,6 @@ class PIDNet(tf.keras.models.Model):
         x = self.conv1(inputs)
         x = self.layer1_i(x)
         x = self.relu(self.layer2_i(self.relu(x)))
-        print(x.shape)
 
         x_p = self.layer3_p(x) # p-branch
         x_d = self.layer3_d(x) # d-branch
@@ -133,9 +131,8 @@ class PIDNet(tf.keras.models.Model):
 
         x = tf.image.resize(self.spp(self.layer5_i(x)), size=(height_output, width_output))
         x_dfm = self.dfm([x_p, x, x_d])
-        print("137", x_dfm.shape)
+
         x_p = self.final_layer(x_dfm)
-        
 
         if self.augment:
             x_extra_p = self.seghead_p(temp_p)
