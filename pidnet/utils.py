@@ -126,6 +126,8 @@ class SegmentHead(tf.keras.layers.Layer):
             width = x.shape[2] * self.scale_factor
 
             out = tf.image.resize(out, size=(height, width))
+            
+        return out
 
 
 class ScaleProcessBlock(tf.keras.layers.Layer):

@@ -35,4 +35,3 @@ class FullModel(tf.keras.models.Model):
 
         return loss_s + loss_b + loss_sb
 
-        
