@@ -8,7 +8,7 @@ bn_momentum = 0.1
 
 class PIDNet(tf.keras.models.Model):
 
-    def __init__(self, input_shape, m=2, n=3, num_classes=11, planes=64, ppm_planes=96, head_planes=128, augment=True):
+    def __init__(self, input_shape, m=2, n=3, num_classes=11, planes=64, ppm_planes=96, head_planes=128, augment=True, use_sigmoid=False):
         super(PIDNet, self).__init__()
 
         self.augment = augment
@@ -92,10 +92,10 @@ class PIDNet(tf.keras.models.Model):
         # Prediction Head
 
         if self.augment:
-            self.seghead_p = SegmentHead(head_planes, num_classes)
-            self.seghead_d = SegmentHead(planes, 1)
+            self.seghead_p = SegmentHead(head_planes, num_classes, use_sigmoid=use_sigmoid)
+            self.seghead_d = SegmentHead(planes, 1, use_sigmoid=use_sigmoid)
 
-        self.final_layer = SegmentHead(head_planes, num_classes)
+        self.final_layer = SegmentHead(head_planes, num_classes, use_sigmoid=use_sigmoid)
 
 
     def call(self, inputs, training=False):
