@@ -99,7 +99,7 @@ class Bottleneck(tf.keras.layers.Layer):
 
 class SegmentHead(tf.keras.layers.Layer):
     
-    def __init__(self, interplanes, outplanes, scale_factor=None):
+    def __init__(self, interplanes, outplanes, scale_factor=None, use_sigmoid=False):
         super(SegmentHead, self).__init__()
         
         self.bn1 = tf.keras.layers.BatchNormalization(momentum=bn_momentum)
@@ -115,11 +115,19 @@ class SegmentHead(tf.keras.layers.Layer):
         self.relu = tf.keras.layers.ReLU()
 
         self.scale_factor = scale_factor
+        self.use_sigmoid = use_sigmoid
+        
+        if use_sigmoid:
+            self.sigmoid = tf.keras.layers.Activation('sigmoid')
+
 
     def call(self, inputs):
 
         x = self.conv1(self.relu(self.bn1(inputs)))
         out = self.conv2(self.relu(self.bn2(x)))
+        
+        if use_sigmoid:
+            out = self.sigmoid(out)
 
         if self.scale_factor is not None:
             height = tf.shape(x)[1] * self.scale_factor
