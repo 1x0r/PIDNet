@@ -126,7 +126,7 @@ class SegmentHead(tf.keras.layers.Layer):
         x = self.conv1(self.relu(self.bn1(inputs)))
         out = self.conv2(self.relu(self.bn2(x)))
         
-        if use_sigmoid:
+        if self.use_sigmoid:
             out = self.sigmoid(out)
 
         if self.scale_factor is not None:
